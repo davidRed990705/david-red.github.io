@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>David.Red | 量化研究员与策略开发</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="description" content="David.Red（刘强）的个人网站。聚焦股票因子研究、多资产配置、波动率建模与可落地的量化策略开发。">
+<meta name="keywords" content="David Red,刘强,量化研究员,多资产配置,风险平价,股票因子,波动率建模,FX Smile">
+<meta property="og:title" content="David.Red | Quantitative Research">
+<meta property="og:description" content="股票因子研究、多资产配置、波动率建模与实盘策略开发。">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#07111b">
+<link rel="canonical" href="https://davidRed990705.github.io/david-red.github.io/">
+<meta property="og:url" content="https://davidRed990705.github.io/david-red.github.io/">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "David.Red",
+  "alternateName": "刘强",
+  "jobTitle": "Quantitative Researcher",
+  "url": "https://davidRed990705.github.io/david-red.github.io/",
+  "email": "mailto:david.c.red990705@gmail.com",
+  "telephone": "+86-183-1000-9283",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "北京",
+    "addressCountry": "CN"
+  },
+  "alumniOf": [
+    {
+      "@type": "CollegeOrUniversity",
+      "name": "辽宁大学"
+    },
+    {
+      "@type": "CollegeOrUniversity",
+      "name": "首都经济贸易大学"
+    }
+  ]
+}
+</script>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;800&display=swap");
+
+  :root {
+    --bg: #07111b;
+    --bg-soft: #0c1827;
+    --surface: rgba(15, 28, 44, 0.7);
+    --surface-strong: rgba(18, 38, 58, 0.9);
+    --line: rgba(244, 235, 220, 0.12);
+    --line-strong: rgba(244, 235, 220, 0.2);
+    --text: #f4ebdc;
+    --text-soft: #ccbfae;
+    --text-muted: #90a1b5;
+    --accent: #d8a45b;
+    --accent-soft: rgba(216, 164, 91, 0.18);
+    --teal: #67c6b1;
+    --blue: #87a9ff;
+    --red: #ef8b73;
+    --shadow: 0 30px 80px rgba(0, 0, 0, 0.32);
+    --max-width: 1240px;
+    --header-height: 78px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Noto Sans SC", sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 20% 20%, rgba(103, 198, 177, 0.08), transparent 28%),
+      radial-gradient(circle at 85% 15%, rgba(216, 164, 91, 0.1), transparent 24%),
+      linear-gradient(180deg, #06101a 0%, #08131f 36%, #091622 100%);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(circle at 50% 20%, black, transparent 78%);
+    opacity: 0.6;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    font: inherit;
+    border: none;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+  }
+
+  section {
+    scroll-margin-top: 110px;
+  }
+
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 40;
+    transition:
+      background 0.3s ease,
+      border-color 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .site-header.is-scrolled {
+    background: rgba(7, 17, 27, 0.82);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .header-inner {
+    width: min(calc(100% - 32px), var(--max-width));
+    min-height: var(--header-height);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+  }
+
+  .brand-mark {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), #f0d9b3);
+    box-shadow: 0 0 28px rgba(216, 164, 91, 0.45);
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .brand-text strong {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .brand-text span {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+  }
+
+  .site-nav a {
+    position: relative;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    transition: color 0.24s ease;
+  }
+
+  .site-nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 100%;
+    height: 1px;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    transition: transform 0.24s ease;
+  }
+
+  .site-nav a:hover,
+  .site-nav a.active {
+    color: var(--text);
+  }
+
+  .site-nav a:hover::after,
+  .site-nav a.active::after {
+    transform: scaleX(1);
+  }
+
+  .site-nav .nav-cta {
+    padding: 0.75rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(216, 164, 91, 0.35);
+    color: var(--text);
+    background: rgba(216, 164, 91, 0.08);
+  }
+
+  .site-nav .nav-cta::after {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: none;
+    padding: 0.72rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    padding: calc(var(--header-height) + 2.8rem) 0 2.4rem;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 14% 0 auto auto;
+    width: min(42vw, 540px);
+    height: min(42vw, 540px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(216, 164, 91, 0.15), transparent 64%);
+    filter: blur(30px);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    width: min(calc(100% - 32px), var(--max-width));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    gap: clamp(2.5rem, 5vw, 6rem);
+    align-items: end;
+  }
+
+  .eyebrow,
+  .section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.83rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .eyebrow::before,
+  .section-kicker::before {
+    content: "";
+    width: 42px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(216, 164, 91, 0.15), var(--accent));
+  }
+
+  .hero-copy {
+    animation: riseIn 0.9s cubic-bezier(0.2, 1, 0.22, 1) both;
+  }
+
+  .hero-title {
+    margin-top: 1.1rem;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(4rem, 10vw, 7.8rem);
+    line-height: 0.92;
+    letter-spacing: -0.06em;
+  }
+
+  .hero-title span {
+    display: block;
+  }
+
+  .hero-name-cn {
+    display: inline-block;
+    margin-top: 0.9rem;
+    font-size: clamp(1.1rem, 2.1vw, 1.4rem);
+    font-weight: 600;
+    letter-spacing: 0.38em;
+    color: var(--text-soft);
+    text-transform: uppercase;
+  }
+
+  .hero-lead {
+    margin-top: 1.4rem;
+    max-width: 680px;
+    font-size: clamp(1.18rem, 2.3vw, 1.52rem);
+    font-weight: 500;
+    color: #f8f3ea;
+  }
+
+  .hero-body {
+    margin-top: 1.2rem;
+    max-width: 640px;
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .hero-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.95rem;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 0 1.35rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition:
+      transform 0.24s ease,
+      border-color 0.24s ease,
+      background 0.24s ease;
+  }
+
+  .button:hover {
+    transform: translateY(-1px);
+  }
+
+  .button.primary {
+    background: linear-gradient(135deg, var(--accent), #f3d4a0);
+    color: #17120b;
+    font-weight: 700;
+    box-shadow: 0 14px 30px rgba(216, 164, 91, 0.18);
+  }
+
+  .button.secondary {
+    border-color: var(--line);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .hero-meta {
+    margin-top: 1.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .hero-meta span {
+    position: relative;
+    padding-left: 1rem;
+  }
+
+  .hero-meta span::before {
+    content: "";
+    position: absolute;
+    top: 0.7em;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  .hero-stage {
+    position: relative;
+    min-height: 540px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1.25rem;
+    animation: riseIn 1.05s cubic-bezier(0.2, 1, 0.22, 1) 0.08s both;
+  }
+
+  .hero-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 36px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+      radial-gradient(circle at 60% 25%, rgba(135, 169, 255, 0.14), transparent 30%),
+      linear-gradient(180deg, rgba(10, 19, 31, 0.6), rgba(10, 19, 31, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .stage-chart {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.75;
+  }
+
+  .hero-words,
+  .hero-note {
+    position: relative;
+    z-index: 1;
+    padding: 0 2rem;
+  }
+
+  .hero-words {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-words span {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(2.2rem, 5.5vw, 4.1rem);
+    line-height: 0.94;
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(244, 235, 220, 0.28);
+  }
+
+  .hero-words span:last-child {
+    color: var(--text);
+    -webkit-text-stroke: 0;
+  }
+
+  .hero-note {
+    padding-bottom: 2rem;
+    max-width: 320px;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .hero-stats {
+    width: min(calc(100% - 32px), var(--max-width));
+    margin: auto auto 0;
+    padding-top: 2.1rem;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.1rem;
+    border-top: 1px solid var(--line);
+    animation: riseIn 1.15s cubic-bezier(0.2, 1, 0.22, 1) 0.14s both;
+  }
+
+  .hero-stats article {
+    padding-right: 1rem;
+    border-right: 1px solid rgba(244, 235, 220, 0.08);
+  }
+
+  .hero-stats article:last-child {
+    border-right: 0;
+  }
+
+  .hero-stats strong,
+  .metric strong,
+  .honor-value strong {
+    display: block;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .hero-stats span,
+  .metric span,
+  .honor-value span {
+    display: block;
+    margin-top: 0.55rem;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .section {
+    width: min(calc(100% - 32px), var(--max-width));
+    margin: 0 auto;
+    padding: 6.8rem 0;
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(220px, 0.7fr);
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: 2.8rem;
+  }
+
+  .section-title {
+    margin-top: 1rem;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(2rem, 4.8vw, 3.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+  }
+
+  .section-subtitle {
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    max-width: 460px;
+    justify-self: end;
+  }
+
+  .profile-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    gap: 2.4rem;
+  }
+
+  .profile-text {
+    padding-right: 1rem;
+  }
+
+  .profile-text p {
+    max-width: 720px;
+    color: #d6dbe0;
+    font-size: 1.02rem;
+  }
+
+  .profile-text p + p {
+    margin-top: 1.2rem;
+    color: var(--text-muted);
+  }
+
+  .profile-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.4rem;
+  }
+
+  .fact {
+    padding: 1rem 0 1.15rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .fact-label {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .fact-value {
+    margin-top: 0.55rem;
+    color: #f4efe7;
+    font-weight: 600;
+  }
+
+  .fact-note {
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .method-columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .method {
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .method-index {
+    display: inline-block;
+    margin-bottom: 0.8rem;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.9rem;
+    color: var(--accent);
+    letter-spacing: 0.16em;
+  }
+
+  .method h3,
+  .work-title,
+  .column-title,
+  .record-title,
+  .contact-title {
+    font-family: "Space Grotesk", sans-serif;
+    letter-spacing: -0.03em;
+  }
+
+  .method h3 {
+    font-size: 1.48rem;
+    line-height: 1.05;
+  }
+
+  .method p {
+    margin-top: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .process {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+    box-shadow: var(--shadow);
+  }
+
+  .process-step {
+    min-height: 138px;
+    padding: 1rem;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .process-step strong {
+    display: block;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .process-step h4 {
+    margin-top: 0.55rem;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .process-step p {
+    margin-top: 0.7rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .work-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .work-item {
+    display: grid;
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+    gap: 2rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .work-meta {
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .work-meta strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-family: "Space Grotesk", sans-serif;
+    color: var(--accent);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+
+  .work-title {
+    font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+    line-height: 1;
+  }
+
+  .work-summary {
+    margin-top: 0.95rem;
+    max-width: 760px;
+    color: #dde3ea;
+  }
+
+  .work-points {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .work-points li {
+    position: relative;
+    padding-left: 1.1rem;
+    color: var(--text-muted);
+  }
+
+  .work-points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.72rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  .record-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .record-panel {
+    padding: 1.6rem;
+    border-radius: 30px;
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(circle at top right, rgba(135, 169, 255, 0.08), transparent 30%),
+      linear-gradient(180deg, rgba(17, 33, 51, 0.8), rgba(11, 23, 36, 0.84));
+    box-shadow: var(--shadow);
+  }
+
+  .record-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .record-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-soft);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .record-tag::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--teal);
+  }
+
+  .record-panel.high-vol .record-tag::before {
+    background: var(--accent);
+  }
+
+  .record-title {
+    margin-top: 1rem;
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .record-copy {
+    margin-top: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .metrics {
+    margin-top: 1.2rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem 1rem;
+  }
+
+  .metric {
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .metric strong.positive {
+    color: var(--teal);
+  }
+
+  .metric strong.negative {
+    color: var(--red);
+  }
+
+  .chart-frame {
+    position: relative;
+    height: 240px;
+    margin-top: 1.35rem;
+    padding: 0.8rem;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .record-note {
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .disclaimer {
+    margin-top: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.84rem;
+  }
+
+  .timeline-grid,
+  .research-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .column-title {
+    margin-bottom: 1.2rem;
+    font-size: 1.55rem;
+  }
+
+  .timeline-list,
+  .research-list,
+  .honor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+  }
+
+  .timeline-item,
+  .research-item,
+  .honor-item {
+    padding: 1.2rem 0 0 1.2rem;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+
+  .timeline-item::before,
+  .research-item::before,
+  .honor-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1.45rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  .item-date {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .item-title {
+    margin-top: 0.5rem;
+    font-size: 1.06rem;
+    font-weight: 700;
+    color: #f6efe4;
+  }
+
+  .item-subtitle {
+    margin-top: 0.25rem;
+    color: var(--accent);
+    font-size: 0.95rem;
+  }
+
+  .item-body,
+  .research-item p,
+  .honor-item p {
+    margin-top: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.94rem;
+  }
+
+  .timeline-points {
+    margin-top: 0.8rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .timeline-points li {
+    position: relative;
+    padding-left: 0.95rem;
+    color: var(--text-muted);
+    font-size: 0.93rem;
+  }
+
+  .timeline-points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.7rem;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(244, 235, 220, 0.35);
+  }
+
+  .honor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .honor-item {
+    min-height: 170px;
+    padding-right: 0.5rem;
+  }
+
+  .honor-value strong {
+    color: var(--accent);
+    font-size: 1.3rem;
+  }
+
+  .contact-panel {
+    padding: clamp(1.8rem, 5vw, 3rem);
+    border-radius: 34px;
+    border: 1px solid rgba(216, 164, 91, 0.24);
+    background:
+      radial-gradient(circle at top right, rgba(216, 164, 91, 0.12), transparent 24%),
+      linear-gradient(180deg, rgba(17, 29, 43, 0.88), rgba(12, 22, 34, 0.92));
+    box-shadow: var(--shadow);
+  }
+
+  .contact-panel p {
+    margin-top: 1rem;
+    max-width: 720px;
+    color: var(--text-muted);
+  }
+
+  .contact-grid {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .contact-link {
+    display: block;
+    min-height: 132px;
+    padding: 1.15rem 1.15rem 1.25rem;
+    border-radius: 24px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    transition:
+      transform 0.24s ease,
+      border-color 0.24s ease,
+      background 0.24s ease;
+  }
+
+  .contact-link:hover {
+    transform: translateY(-2px);
+    border-color: rgba(216, 164, 91, 0.34);
+    background: rgba(216, 164, 91, 0.05);
+  }
+
+  .contact-label {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .contact-value {
+    margin-top: 0.9rem;
+    font-size: 1.08rem;
+    color: #f8f2e8;
+    word-break: break-word;
+  }
+
+  .contact-note {
+    margin-top: 0.55rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  footer {
+    width: min(calc(100% - 32px), var(--max-width));
+    margin: 0 auto;
+    padding: 1.2rem 0 2.8rem;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s cubic-bezier(0.2, 1, 0.22, 1),
+      transform 0.7s cubic-bezier(0.2, 1, 0.22, 1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @keyframes riseIn {
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 1080px) {
+    .hero-inner,
+    .profile-layout,
+    .section-head,
+    .timeline-grid,
+    .research-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .section-subtitle {
+      justify-self: start;
+    }
+
+    .hero-stage {
+      min-height: 420px;
+    }
+
+    .hero-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hero-stats article:nth-child(2) {
+      border-right: 0;
+    }
+
+    .method-columns,
+    .record-grid,
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .process {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .honor-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 780px) {
+    .site-nav {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 16px;
+      width: min(280px, calc(100vw - 32px));
+      padding: 1rem;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: rgba(7, 17, 27, 0.96);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+      display: none;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+
+    .site-nav.open {
+      display: flex;
+    }
+
+    .site-nav a::after {
+      bottom: 0;
+    }
+
+    .site-nav .nav-cta {
+      margin-top: 0.3rem;
+      text-align: center;
+    }
+
+    .menu-toggle {
+      display: inline-flex;
+    }
+
+    .hero {
+      padding-top: calc(var(--header-height) + 2rem);
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 18vw, 5rem);
+    }
+
+    .hero-name-cn {
+      letter-spacing: 0.24em;
+    }
+
+    .hero-stage {
+      min-height: 340px;
+    }
+
+    .hero-words,
+    .hero-note {
+      padding-left: 1.35rem;
+      padding-right: 1.35rem;
+    }
+
+    .hero-stats {
+      gap: 1rem 0.8rem;
+    }
+
+    .hero-stats article {
+      padding-right: 0.6rem;
+    }
+
+    .profile-facts {
+      grid-template-columns: 1fr;
+    }
+
+    .process {
+      grid-template-columns: 1fr;
+      padding: 1rem;
+    }
+
+    .work-item {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .metrics,
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+</head>
+<body>
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>David.Red</strong>
+        <span>Quantitative Research</span>
+      </span>
+    </a>
+    <button class="menu-toggle" id="menu-toggle" type="button" aria-label="打开导航">Menu</button>
+    <nav class="site-nav" id="site-nav">
+      <a href="#profile">简介</a>
+      <a href="#methods">方法</a>
+      <a href="#work">作品</a>
+      <a href="#record">表现</a>
+      <a href="#timeline">履历</a>
+      <a href="#research">研究</a>
+      <a href="#contact" class="nav-cta">联系我</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="eyebrow">Quantitative Researcher • Multi-Asset • Volatility</div>
+        <h1 class="hero-title">
+          <span>David.</span>
+          <span>Red</span>
+        </h1>
+        <div class="hero-name-cn">刘强</div>
+        <p class="hero-lead">把数学建模、金融工程和实盘运营接成同一条研究链路。</p>
+        <p class="hero-body">
+          专注股票因子研究、多资产配置与波动率建模。过去两年将全天候策略从框架设计推进到标准化产品实盘运行，覆盖信号设计、组合构建、波动率控制与投后归因。
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#contact">联系我</a>
+          <a class="button secondary" href="#work">查看代表工作</a>
+        </div>
+        <div class="hero-meta">
+          <span>北京，中国</span>
+          <span>辽宁大学经济学硕士</span>
+          <span>2024 年起持续实盘</span>
+        </div>
+      </div>
+
+      <div class="hero-stage" aria-hidden="true">
+        <svg class="stage-chart" viewBox="0 0 620 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hero-line" x1="80" y1="520" x2="540" y2="160" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#D8A45B" stop-opacity="0"/>
+              <stop offset="0.35" stop-color="#67C6B1" stop-opacity="0.55"/>
+              <stop offset="1" stop-color="#F4EBDC" stop-opacity="0.9"/>
+            </linearGradient>
+            <linearGradient id="hero-fill" x1="310" y1="110" x2="310" y2="540" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#87A9FF" stop-opacity="0.18"/>
+              <stop offset="1" stop-color="#87A9FF" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M65 525H555" stroke="rgba(244,235,220,0.08)" stroke-width="1"/>
+          <path d="M110 485L175 455L235 430L305 360L365 338L425 280L500 205L540 168" stroke="url(#hero-line)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M110 485L175 455L235 430L305 360L365 338L425 280L500 205L540 168V525H110V485Z" fill="url(#hero-fill)"/>
+          <path d="M80 220C135 184 190 173 250 160C318 145 370 135 428 102C474 77 518 64 564 58" stroke="rgba(244,235,220,0.08)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="8 12"/>
+          <circle cx="540" cy="168" r="8" fill="#D8A45B"/>
+        </svg>
+        <div class="hero-words">
+          <span>Risk</span>
+          <span>Parity</span>
+          <span>Volatility</span>
+          <span>Alpha</span>
+        </div>
+        <p class="hero-note">
+          以风险预算为底、定量信号为轴、波控模块为闸门，把“研究可解释”与“策略可执行”放进同一套体系。
+        </p>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <article>
+        <strong>2 年</strong>
+        <span>全天候策略实盘经验</span>
+      </article>
+      <article>
+        <strong>21.53%</strong>
+        <span>低波组合累计收益</span>
+      </article>
+      <article>
+        <strong>-4.12%</strong>
+        <span>低波组合最大回撤</span>
+      </article>
+      <article>
+        <strong>1 / 16</strong>
+        <span>硕士阶段专业排名</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="profile">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker">Profile</div>
+        <h2 class="section-title">个人简介</h2>
+      </div>
+      <p class="section-subtitle">
+        我关心的不只是回测曲线是否漂亮，而是信号能否进入真实组合，并在波动、成本和约束里保持稳定。
+      </p>
+    </div>
+
+    <div class="profile-layout">
+      <div class="profile-text reveal">
+        <p>
+          本科阶段系统训练了数学分析、统计与计量经济学，硕士期间进一步深入金融工程与衍生品分析，覆盖期权定价、动态对冲、波动率曲面构建及宏观开放经济研究。过去两年，我把这些训练延伸到全天候多资产策略的实盘框架中，形成了从研究、建模到投后监控的完整工作链条。
+        </p>
+        <p>
+          除了多资产配置与股票因子研究，我也持续关注 rough volatility、XVA、deep hedging 等前沿方向。我的工作方式偏“研究员 + 设计者”：既要把问题压缩成可检验的模型，也要把模型放回交易、执行和风险控制的现实环境中。
+        </p>
+      </div>
+
+      <div class="profile-facts reveal">
+        <div class="fact">
+          <div class="fact-label">Education</div>
+          <div class="fact-value">辽宁大学 · 经济学硕士（世界经济）</div>
+          <div class="fact-note">GPA 90.68 / 100，专业排名 1 / 16。</div>
+        </div>
+        <div class="fact">
+          <div class="fact-label">Programming</div>
+          <div class="fact-value">Python · MATLAB · R · C++ · LaTeX</div>
+          <div class="fact-note">熟悉数据管道、建模实验、可视化与研究报告交付。</div>
+        </div>
+        <div class="fact">
+          <div class="fact-label">Focus</div>
+          <div class="fact-value">股票因子 / 多资产配置 / FX Smile</div>
+          <div class="fact-note">兼顾宏观信号、组合约束、波动率结构与绩效归因。</div>
+        </div>
+        <div class="fact">
+          <div class="fact-label">Highlight</div>
+          <div class="fact-value">ICM Meritorious Winner</div>
+          <div class="fact-note">美国大学生数学建模大赛国家级一等奖，全国数模国三 / 北京二等奖。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="methods">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker">Method</div>
+        <h2 class="section-title">方法与工作方式</h2>
+      </div>
+      <p class="section-subtitle">
+        我偏好的研究流程是先建立清晰的数据和风险边界，再讨论信号强度与策略表达，而不是反过来。
+      </p>
+    </div>
+
+    <div class="method-columns">
+      <article class="method reveal">
+        <span class="method-index">01</span>
+        <h3>信号设计</h3>
+        <p>围绕宏观状态、估值、动量、波动率结构与资产间联动关系，寻找既可解释又可验证的研究信号。</p>
+      </article>
+      <article class="method reveal">
+        <span class="method-index">02</span>
+        <h3>组合构建</h3>
+        <p>以风险平价做底层风险预算，用 TAA 信号做动态调整，让配置逻辑和风险暴露保持一致。</p>
+      </article>
+      <article class="method reveal">
+        <span class="method-index">03</span>
+        <h3>实盘闭环</h3>
+        <p>把波动率控制、事件驱动再平衡、投后监控和绩效归因视为研究的一部分，而不是策略之外的附加项。</p>
+      </article>
+    </div>
+
+    <div class="process reveal">
+      <div class="process-step">
+        <strong>Step 1</strong>
+        <h4>Data Pipeline</h4>
+        <p>整理行情、宏观与衍生品数据，建立可复用的指标与清洗流程。</p>
+      </div>
+      <div class="process-step">
+        <strong>Step 2</strong>
+        <h4>Signals</h4>
+        <p>设计宏观、估值、动量和波动率信号，并验证其跨阶段稳定性。</p>
+      </div>
+      <div class="process-step">
+        <strong>Step 3</strong>
+        <h4>Risk Budget</h4>
+        <p>用风险平价与组合约束决定底层配置边界，避免单一资产过度暴露。</p>
+      </div>
+      <div class="process-step">
+        <strong>Step 4</strong>
+        <h4>Execution</h4>
+        <p>通过月度再平衡与事件触发调仓，把研究输出落实为可执行权重。</p>
+      </div>
+      <div class="process-step">
+        <strong>Step 5</strong>
+        <h4>Attribution</h4>
+        <p>跟踪回撤来源、超额收益质量和风险贡献，持续优化框架而不是只看结果。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="work">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker">Selected Work</div>
+        <h2 class="section-title">代表工作</h2>
+      </div>
+      <p class="section-subtitle">
+        下面这些项目，基本覆盖了我最核心的工作面：多资产策略、衍生品建模和开放经济研究。
+      </p>
+    </div>
+
+    <div class="work-list">
+      <article class="work-item reveal">
+        <div class="work-meta">
+          <strong>2024 — Now</strong>
+          全天候多资产策略体系
+        </div>
+        <div>
+          <h3 class="work-title">从风险预算到底层风控的完整闭环</h3>
+          <p class="work-summary">
+            基于风险平价搭建 SAA 底座，叠加宏观、估值与动量信号进行 TAA 调整，再用日度波动率控制模块管理组合回撤和异常风险暴露。
+          </p>
+          <ul class="work-points">
+            <li>覆盖国内外权益、固收、黄金、CTA 与套利类子策略，构建多资产、多策略、跨市场的配置框架。</li>
+            <li>设计事件驱动与规则驱动并存的调仓机制，使信号生成、执行约束和投后监控保持同一逻辑。</li>
+            <li>将底层管理人筛选、风险贡献分析与绩效归因纳入持续评估流程，而不是停留在初始建模阶段。</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="work-item reveal">
+        <div class="work-meta">
+          <strong>2021.12 — 2022.06</strong>
+          中信证券量化研究项目
+        </div>
+        <div>
+          <h3 class="work-title">FX 隐含波动率 Smile 构造与分析</h3>
+          <p class="work-summary">
+            围绕外汇期权波动率曲面开展系统研究，完成市场报价转换、模型参数设定和数值模拟，并独立搭建了可复用的对冲误差与交易成本敏感性分析框架。
+          </p>
+          <ul class="work-points">
+            <li>结合 Python、MATLAB 和 R 建立完整研究流程，处理波动率 smile 的构造、解释与可视化输出。</li>
+            <li>比较不同模型设定下的 smile 结构、smile 风险与对冲误差表现，形成可交付的研究报告。</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="work-item reveal">
+        <div class="work-meta">
+          <strong>2024</strong>
+          CES 年会入选论文
+        </div>
+        <div>
+          <h3 class="work-title">资本管制、冲销式干预与汇率形成机制</h3>
+          <p class="work-summary">
+            作为第一作者系统推进文献梳理、数据清洗与量化建模，在既有框架上引入冲销式干预与资本管制渠道，扩展了汇率决定机制的理论与经验分析。
+          </p>
+          <ul class="work-points">
+            <li>创新性推导准差分 GMM 估计量，实现关键参数的一致性识别。</li>
+            <li>项目历时 13 个月，最终入选 2024 年中国经济学年会，并完成独立汇报演讲。</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="record">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker">Track Record</div>
+        <h2 class="section-title">策略表现</h2>
+      </div>
+      <p class="section-subtitle">
+        这里保留了最有代表性的两条实盘曲线：一条偏稳健，一条偏进取。它们的意义不在于“最好看”，而在于能对应到一整套明确的方法和风控机制。
+      </p>
+    </div>
+
+    <div class="record-grid">
+      <article class="record-panel reveal">
+        <div class="record-head">
+          <div>
+            <div class="record-tag">Live + Backtest</div>
+            <h3 class="record-title">中中 1 号 / 低波全天候</h3>
+          </div>
+        </div>
+        <p class="record-copy">
+          面向稳健增值目标。通过更严格的波动率控制和风险预算约束，使组合在复杂市场环境下保持更平滑的回撤轮廓。
+        </p>
+        <div class="metrics">
+          <div class="metric">
+            <strong class="positive">21.53%</strong>
+            <span>实盘累计收益</span>
+          </div>
+          <div class="metric">
+            <strong class="positive">10.24%</strong>
+            <span>实盘年化收益</span>
+          </div>
+          <div class="metric">
+            <strong>6.35%</strong>
+            <span>实盘年化波动</span>
+          </div>
+          <div class="metric">
+            <strong class="negative">-4.12%</strong>
+            <span>最大回撤</span>
+          </div>
+        </div>
+        <div class="chart-frame">
+          <canvas id="chart-low"></canvas>
+        </div>
+        <p class="record-note">
+          回测区间年化收益 15.8%，年化波动 10.8%，夏普 1.46；实盘自 2024/03 持续运行至 2026/03。
+        </p>
+      </article>
+
+      <article class="record-panel high-vol reveal">
+        <div class="record-head">
+          <div>
+            <div class="record-tag">Live + Backtest</div>
+            <h3 class="record-title">中中 2 号 / 高波全天候</h3>
+          </div>
+        </div>
+        <p class="record-copy">
+          面向更高风险偏好。适度放宽波控阈值，以更高的风险预算换取收益弹性，同时仍保持规则化的组合管理框架。
+        </p>
+        <div class="metrics">
+          <div class="metric">
+            <strong class="positive">32.15%</strong>
+            <span>实盘累计收益</span>
+          </div>
+          <div class="metric">
+            <strong class="positive">15.28%</strong>
+            <span>实盘年化收益</span>
+          </div>
+          <div class="metric">
+            <strong>24.6%</strong>
+            <span>回测年化波动</span>
+          </div>
+          <div class="metric">
+            <strong class="negative">-9.85%</strong>
+            <span>实盘最大回撤</span>
+          </div>
+        </div>
+        <div class="chart-frame">
+          <canvas id="chart-high"></canvas>
+        </div>
+        <p class="record-note">
+          回测区间年化收益 38.5%，最大回撤 -28.6%；更适合愿意承受更大波动、以换取更高收益弹性的投资者。
+        </p>
+      </article>
+    </div>
+
+    <p class="disclaimer">
+      说明：回测表现未扣除产品层面费用，不代表未来业绩承诺；展示目的仅为说明策略框架与风险收益特征，市场有风险，投资需谨慎。
+    </p>
+  </section>
+
+  <section class="section" id="timeline">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker">Timeline</div>
+        <h2 class="section-title">经历与教育</h2>
+      </div>
+      <p class="section-subtitle">
+        我比较看重训练路径的连续性：从经济学与计量基础，到衍生品建模，再到多资产策略的实盘运行。
+      </p>
+    </div>
+
+    <div class="timeline-grid">
+      <div>
+        <h3 class="column-title">工作经历</h3>
+        <div class="timeline-list">
+          <article class="timeline-item reveal">
+            <div class="item-date">2025.05 — 2026.01</div>
+            <div class="item-title">中信期货有限公司</div>
+            <div class="item-subtitle">投资研究助理</div>
+            <ul class="timeline-points">
+              <li>开展期货与衍生品市场量化分析，支持组合监控与风险评估工作流。</li>
+              <li>构建并维护系统性期货市场指标数据管道，支撑研究报告与策略复盘。</li>
+              <li>参与国内外期货市场的大类资产配置研究，将宏观信号与市场微观结构数据结合起来。</li>
+            </ul>
+          </article>
+
+          <article class="timeline-item reveal">
+            <div class="item-date">2021.12 — 2022.06</div>
+            <div class="item-title">中信证券股份有限公司</div>
+            <div class="item-subtitle">量化研究员（实习）</div>
+            <ul class="timeline-points">
+              <li>围绕 FX implied vol smile 开展研究，包括市场报价转换、模型参数设定与数值模拟。</li>
+              <li>使用 Python、MATLAB 与 R 搭建金融时间序列清洗、建模与可视化流程。</li>
+              <li>独立完成期权对冲误差模拟与交易成本敏感性分析框架。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="column-title">教育经历</h3>
+        <div class="timeline-list">
+          <article class="timeline-item reveal">
+            <div class="item-date">2022 — 2025</div>
+            <div class="item-title">辽宁大学</div>
+            <div class="item-subtitle">经济学硕士 · 世界经济</div>
+            <p class="item-body">
+              GPA 90.68 / 100，专业排名 1 / 16。核心课程包括高级宏观经济学、高级微观经济学、高级国际经济学与国际金融。
+            </p>
+          </article>
+
+          <article class="timeline-item reveal">
+            <div class="item-date">2017 — 2021</div>
+            <div class="item-title">首都经济贸易大学</div>
+            <div class="item-subtitle">经济学学士 · 经济学实验班</div>
+            <p class="item-body">
+              GPA 91.87 / 100，专业排名 2 / 34。数学分析三学期均 95+，计量经济学 96，统计学 90。
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="research">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker">Research & Honors</div>
+        <h2 class="section-title">研究与荣誉</h2>
+      </div>
+      <p class="section-subtitle">
+        一部分工作发生在资本市场，一部分发生在学术训练里；对我来说，二者并不冲突，反而互相提供方法论支持。
+      </p>
+    </div>
+
+    <div class="research-grid">
+      <div>
+        <h3 class="column-title">研究项目</h3>
+        <div class="research-list">
+          <article class="research-item reveal">
+            <div class="item-title">资本管制、冲销式干预与汇率形成机制</div>
+            <div class="item-subtitle">第一作者 · 入选 2024 年中国经济学年会（CES）</div>
+            <p>系统完成文献梳理、数据清洗与模型推导，构建更贴近政策现实的汇率形成机制分析框架，并独立完成会议汇报。</p>
+          </article>
+
+          <article class="research-item reveal">
+            <div class="item-title">辽宁省上市公司数字化转型困境研究</div>
+            <div class="item-subtitle">省级政策咨询报告 · 项目负责人</div>
+            <p>追踪调查逾 3,000 家上市公司，结合问卷分析与实证建模形成政策建议，报告经审阅后被辽宁省统战部采纳。</p>
+          </article>
+
+          <article class="research-item reveal">
+            <div class="item-title">FX 隐含波动率 Smile 构造与分析</div>
+            <div class="item-subtitle">中信证券量化研究项目</div>
+            <p>围绕外汇期权波动率曲面进行参数标定与模型比较，分析 smile 风险及对冲误差，形成完整研究说明与实验框架。</p>
+          </article>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="column-title">荣誉奖项</h3>
+        <div class="honor-grid">
+          <article class="honor-item reveal">
+            <div class="honor-value">
+              <strong>ICM</strong>
+              <span>Meritorious Winner</span>
+            </div>
+            <p>2020 年美国大学生数学建模大赛国家级一等奖，负责建模、编程与论文排版。</p>
+          </article>
+
+          <article class="honor-item reveal">
+            <div class="honor-value">
+              <strong>Scholarship</strong>
+              <span>辽宁大学</span>
+            </div>
+            <p>国家奖学金（二等）与嘉文奖学金，连续两年获得校级重要奖学金。</p>
+          </article>
+
+          <article class="honor-item reveal">
+            <div class="honor-value">
+              <strong>Math Model</strong>
+              <span>全国数模</span>
+            </div>
+            <p>全国大学生数学建模竞赛全国三等奖 / 北京市二等奖，持续参与建模与算法问题求解。</p>
+          </article>
+
+          <article class="honor-item reveal">
+            <div class="honor-value">
+              <strong>Academic</strong>
+              <span>Ranked Top</span>
+            </div>
+            <p>硕士阶段专业排名 1 / 16，本科阶段专业排名 2 / 34，长期保持较强的理论课程表现。</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="contact-panel reveal">
+      <div class="section-kicker">Contact</div>
+      <h2 class="contact-title section-title">如果你在找一个能把研究、建模和实盘执行串起来的人，可以联系我。</h2>
+      <p>
+        欢迎围绕量化研究、策略开发、多资产配置与衍生品建模进行交流。无论是岗位机会、项目合作还是研究讨论，都可以通过下面的方式联系我。
+      </p>
+
+      <div class="contact-grid">
+        <a class="contact-link" href="mailto:david.c.red990705@gmail.com">
+          <div class="contact-label">Email</div>
+          <div class="contact-value">david.c.red990705@gmail.com</div>
+          <div class="contact-note">适合正式沟通、简历与项目资料发送。</div>
+        </a>
+
+        <a class="contact-link" href="tel:+8618310009283">
+          <div class="contact-label">Phone</div>
+          <div class="contact-value">+86 183-1000-9283</div>
+          <div class="contact-note">适合快速联系与面试安排。</div>
+        </a>
+
+        <div class="contact-link">
+          <div class="contact-label">Location</div>
+          <div class="contact-value">北京，中国</div>
+          <div class="contact-note">可围绕量化研究、策略开发与岗位机会进一步交流。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  © 2026 David.Red / 刘强 · Personal site for quantitative research, strategy design, and live portfolio work.
+</footer>
+
+<script>
+const menuToggle = document.getElementById("menu-toggle");
+const siteNav = document.getElementById("site-nav");
+const header = document.getElementById("site-header");
+const navLinks = Array.from(document.querySelectorAll(".site-nav a[href^='#']"));
+const revealItems = document.querySelectorAll(".reveal");
+const sections = Array.from(document.querySelectorAll("section[id]"));
+
+menuToggle.addEventListener("click", () => {
+  siteNav.classList.toggle("open");
+});
+
+navLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    siteNav.classList.remove("open");
+  });
+});
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("is-visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.18 });
+
+revealItems.forEach((item) => {
+  revealObserver.observe(item);
+});
+
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) {
+      return;
+    }
+
+    const activeId = entry.target.id;
+    navLinks.forEach((link) => {
+      const target = link.getAttribute("href").slice(1);
+      link.classList.toggle("active", target === activeId);
+    });
+  });
+}, {
+  rootMargin: "-35% 0px -45% 0px",
+  threshold: 0
+});
+
+sections.forEach((section) => {
+  sectionObserver.observe(section);
+});
+
+const updateHeaderState = () => {
+  header.classList.toggle("is-scrolled", window.scrollY > 24);
+};
+
+updateHeaderState();
+window.addEventListener("scroll", updateHeaderState, { passive: true });
+
+const series = {
+  low: {
+    id: "chart-low",
+    values: [1.0, 1.012, 1.025, 1.018, 1.035, 1.028, 1.045, 1.052, 1.068, 1.0969, 1.088, 1.102, 1.095, 1.115, 1.128, 1.12, 1.138, 1.145, 1.155, 1.148, 1.168, 1.1986, 1.192, 1.205, 1.2153],
+    stroke: "#67c6b1",
+    fill: "rgba(103, 198, 177, 0.18)",
+    start: "2024.03",
+    end: "2026.03",
+    label: "NAV 1.2153"
+  },
+  high: {
+    id: "chart-high",
+    values: [1.0, 1.022, 1.048, 1.032, 1.075, 1.038, 1.082, 1.105, 1.128, 1.155, 1.14, 1.175, 1.135, 1.18, 1.215, 1.195, 1.235, 1.22, 1.258, 1.275, 1.295, 1.328, 1.305, 1.325, 1.3215],
+    stroke: "#d8a45b",
+    fill: "rgba(216, 164, 91, 0.18)",
+    start: "2024.03",
+    end: "2026.03",
+    label: "NAV 1.3215"
+  }
+};
+
+function prepareCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+  canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  return { ctx, width: rect.width, height: rect.height };
+}
+
+function drawLineChart(config) {
+  const canvas = document.getElementById(config.id);
+  if (!canvas) {
+    return;
+  }
+
+  const { ctx, width, height } = prepareCanvas(canvas);
+  const values = config.values;
+  const padding = { top: 18, right: 10, bottom: 28, left: 10 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const range = Math.max(0.06, maxValue - minValue);
+
+  ctx.clearRect(0, 0, width, height);
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i += 1) {
+    const y = padding.top + (chartHeight / 3) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+  }
+
+  const points = values.map((value, index) => {
+    const x = padding.left + (chartWidth * index) / (values.length - 1);
+    const y = padding.top + ((maxValue - value) / range) * chartHeight;
+    return { x, y };
+  });
+
+  const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+  gradient.addColorStop(0, config.fill);
+  gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i += 1) {
+    const prev = points[i - 1];
+    const current = points[i];
+    const cpX = (prev.x + current.x) / 2;
+    ctx.bezierCurveTo(cpX, prev.y, cpX, current.y, current.x, current.y);
+  }
+  ctx.lineTo(points[points.length - 1].x, padding.top + chartHeight);
+  ctx.lineTo(points[0].x, padding.top + chartHeight);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i += 1) {
+    const prev = points[i - 1];
+    const current = points[i];
+    const cpX = (prev.x + current.x) / 2;
+    ctx.bezierCurveTo(cpX, prev.y, cpX, current.y, current.x, current.y);
+  }
+  ctx.strokeStyle = config.stroke;
+  ctx.lineWidth = 2.6;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.stroke();
+
+  const lastPoint = points[points.length - 1];
+  ctx.beginPath();
+  ctx.fillStyle = config.stroke;
+  ctx.arc(lastPoint.x, lastPoint.y, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(244, 235, 220, 0.72)";
+  ctx.font = '12px "Space Grotesk", "Noto Sans SC", sans-serif';
+  ctx.fillText(config.start, padding.left, height - 8);
+  const endWidth = ctx.measureText(config.end).width;
+  ctx.fillText(config.end, width - padding.right - endWidth, height - 8);
+
+  ctx.fillStyle = config.stroke;
+  ctx.font = '12px "Space Grotesk", "Noto Sans SC", sans-serif';
+  const labelWidth = ctx.measureText(config.label).width;
+  ctx.fillText(config.label, width - padding.right - labelWidth, 14);
+}
+
+function drawCharts() {
+  drawLineChart(series.low);
+  drawLineChart(series.high);
+}
+
+drawCharts();
+window.addEventListener("resize", drawCharts);
+</script>
+</body>
+</html>
